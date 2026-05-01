@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:property name="base_link_path"
+        value="file://$(find puzzlebot_description)/meshes/base/Puzzlebot_Jetson_Lidar_Edition_Base.stl"/>
+
+    <xacro:macro name="base" params="name xyz rpy">
+        <link name="${name}">
+            <visual>
+                <origin xyz="${xyz}" rpy="${rpy}"/>
+                <geometry>
+                    <mesh filename="${base_link_path}"/>
+                </geometry>
+                <material name="yellow_base">
+                    <color rgba="0.8 0.8 0.05 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="0.2 0.16 0.0503"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="0.351"/>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <inertia
+                    ixx="${(1/12) * 0.351 * (0.16**2 + 0.0503**2)}"
+                    iyy="${(1/12) * 0.351 * (0.2**2  + 0.0503**2)}"
+                    izz="${(1/12) * 0.351 * (0.2**2  + 0.16**2)}"
+                    ixy="0.0" ixz="0.0" iyz="0.0"/>
+            </inertial>
+        </link>
+    </xacro:macro>
+
+</robot>

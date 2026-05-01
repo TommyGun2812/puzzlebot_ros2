@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<robot name="puzzlebot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:arg name="prefix" default="" />
+    <xacro:include filename="sensor_properties.xacro"/>
+    <xacro:include filename="macros.xacro"/>
+    <xacro:include filename="$(find puzzlebot_description)/urdf/puzzlebot_control.xacro" />
+    <!-- include xacro files -->
+    <xacro:include filename="base.xacro"/>
+    <xacro:include filename="wheels.xacro"/>
+    <xacro:include filename="joints.xacro"/>
+
+    <!-- links init -->
+    <link name= "base_footprint"/>
+    <xacro:base name="base_link" xyz="0 0 0" rpy="0 0 0"/> 
+    <xacro:wheel name="wheel_right_link" xyz="0 0 0" rpy="-1.57 0 0"/> 
+    <xacro:wheel name="wheel_left_link" xyz="0 0 0" rpy="1.57 0 0"/>
+    <xacro:caster name="caster_link" xyz="0 0 0" rpy="0 0 0"/>
+
+    <!-- joints init -->
+    <xacro:fixed_joint name="base_link_joint"
+    parent="base_footprint" child="base_link"
+    xyz="0.0 0.0 0.05" rpy="0.0 0.0 0.0"/>
+
+    <xacro:continuous_joint name="wheel_r_joint" 
+    parent="base_link" child="wheel_right_link" 
+    xyz="0.052 -0.095 -0.0025" rpy="0.0 0.0 0.0" 
+    axis="0 1 0"/>
+
+    <xacro:continuous_joint name="wheel_l_joint"
+    parent="base_link" child="wheel_left_link"
+    xyz="0.052 0.095 -0.0025" rpy="0.0 0.0 0.0"
+    axis="0 1 0"/>
+
+    <xacro:fixed_joint name="caster_joint"
+    parent="base_link" child="caster_link"
+    xyz="-0.095 0.0 -0.03" rpy="0.0 0.0 0.0"/>
+
+    <xacro:puzzlebot_control prefix="$(arg prefix)"/>
+    <xacro:include filename="sensors.xacro"/>
+    <xacro:rpi_lidar_sensor prefix="$(arg prefix)"/>
+
+</robot>

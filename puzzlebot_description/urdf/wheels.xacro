@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:property name="wheel_link_path"
+        value="file://$(find puzzlebot_description)/meshes/wheels/Puzzlebot_Wheel.stl"/>
+
+    <xacro:property name="caster_link_path"
+        value="file://$(find puzzlebot_description)/meshes/wheels/Puzzlebot_Caster_Wheel.stl"/>
+
+    <xacro:macro name="wheel" params="name xyz rpy">
+        <link name="${name}">
+            <visual>
+                <origin xyz="${xyz}" rpy="${rpy}"/>
+                <geometry>
+                    <mesh filename="${wheel_link_path}"/>
+                </geometry>
+                <material name="yellow_wheel">
+                    <color rgba="0.8 0.8 0.05 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <origin xyz="0.0 0.0 0.0" rpy="${pi/2} 0.0 0.0"/>
+                <geometry>
+                    <cylinder radius="0.05" length="0.012"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="0.027"/>
+                <origin xyz="0.0 0.0 0.0" rpy="${pi/2} 0.0 0.0"/>
+                <inertia
+                    ixx="${(1/12) * 0.027 * (3 * 0.05**2 + 0.012**2)}"
+                    iyy="${(1/12) * 0.027 * (3 * 0.05**2 + 0.012**2)}"
+                    izz="${(1/2)  * 0.027 * 0.05**2}"
+                    ixy="0.0" ixz="0.0" iyz="0.0"/>
+            </inertial>
+        </link>
+    </xacro:macro>
+
+    <xacro:macro name="caster" params="name xyz rpy">
+        <link name="${name}">
+            <visual>
+                <origin xyz="${xyz}" rpy="${rpy}"/>
+                <geometry>
+                    <mesh filename="${caster_link_path}"/>
+                </geometry>
+                <material name="yellow_caster">
+                    <color rgba="0.8 0.8 0.05 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <sphere radius="0.0065"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="0.009"/>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <inertia
+                    ixx="${(2/5) * 0.009 * 0.0065**2}"
+                    iyy="${(2/5) * 0.009 * 0.0065**2}"
+                    izz="${(2/5) * 0.009 * 0.0065**2}"
+                    ixy="0.0" ixz="0.0" iyz="0.0"/>
+            </inertial>
+        </link>
+    </xacro:macro>
+
+</robot>

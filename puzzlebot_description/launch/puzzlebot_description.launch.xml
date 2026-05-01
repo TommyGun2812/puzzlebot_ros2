@@ -1,0 +1,38 @@
+<launch>
+    <!-- Launch args -->
+    <arg name="rviz" default="false"/>
+    <arg name="gazebo" default="false"/>
+    <arg name="joint_gui" default="false"/>
+    <arg name="rqt_tree" default="false"/>
+    <arg name="use_sim_time" default="false"/>
+
+    <!-- Local paths within puzzlebot_description package -->
+    <let name="urdf_path" value="$(find-pkg-share puzzlebot_description)/urdf/puzzlebot_base.urdf.xacro"/>
+    <let name="rviz_config_path" value="$(find-pkg-share puzzlebot_description)/rviz/puzzlebot_description.rviz"/>
+    
+    <!-- Gazebo garden launch file path --> 
+    <let name="gazebo_path" value="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py"/>
+    
+
+    <!-- Robot state publisher node -->
+    <node pkg="robot_state_publisher" exec="robot_state_publisher">
+        <param name="robot_description" value="$(command 'xacro $(var urdf_path)')"/>
+        <param name="use_sim_time" value="$(var use_sim_time)"/>
+    </node>
+
+    <!-- Rviz2 node -->
+    <node pkg="rviz2" exec="rviz2" output="screen" if="$(var rviz)" args="-d $(var rviz_config_path)">
+        <param name="use_sim_time" value="$(var use_sim_time)"/>
+    </node>
+
+    <!-- Joint state publisher node -->
+    <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" if="$(var joint_gui)" output="screen"/>
+
+     <!-- -->
+    <include file="$(var gazebo_path)" if="$(var gazebo)">
+        <arg name="gz_args" value="empty.sdf -r"/>
+    </include> 
+
+    <node pkg="rqt_tf_tree" exec="rqt_tf_tree" if="$(var rqt_tree)"/>
+    
+</launch>
