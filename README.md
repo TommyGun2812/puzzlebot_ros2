@@ -1,17 +1,19 @@
-# Robotics and Intelligent Systems Integration
+# PuzzleBot ROS 2 — Autonomous Navigation & SLAM
 
-Autonomous navigation project for the PuzzleBot mobile robot, implementing the ROS 2 Navigation2 (Nav2) stack and SLAM Toolbox within a Gazebo simulation environment. The system supports two operation modes: autonomous navigation using a pre-built map, and online mapping via SLAM.
+> Robotics and Intelligent Systems Integration · Tecnológico de Monterrey
+
+Autonomous navigation project for the **PuzzleBot Jetson Lidar Edition** mobile robot, implementing the ROS 2 Navigation2 (Nav2) stack and SLAM Toolbox within a Gazebo Fortress simulation environment. The system supports two mutually exclusive operation modes: autonomous navigation using a pre-built occupancy grid map, and online asynchronous mapping via SLAM Toolbox.
 
 ---
 
 ## Team Members
 
-| Name                       | ID         |
-| -------------------------- | ---------- |
-| Laura Helena Molina Jiménez | A01706282  |
-| Zoé Rebolledo Argueta      | A01709875  |
-| Ulises Carrizalez Lerín    | A01027715  |
-| Tomás Pérez Vera           | A01028008  |
+| Name | Student ID |
+|---|---|
+| Laura Helena Molina Jiménez | A01706282 |
+| Zoé Rebolledo Argueta | A01709875 |
+| Ulises Carrizalez Lerín | A01027715 |
+| Tomás Pérez Vera | A01028008 |
 
 ---
 
@@ -19,25 +21,26 @@ Autonomous navigation project for the PuzzleBot mobile robot, implementing the R
 
 ### System Requirements
 
-| Tool | Recommended Version |
-|------|-------------------|
+| Component | Tested Version |
+|---|---|
 | Operating System | Ubuntu 22.04 LTS |
 | ROS 2 | Humble Hawksbill |
-| Gazebo | Fortress (Ignition) / Classic |
-| Nav2 | ROS 2 Humble compatible release |
-| SLAM Toolbox | ROS 2 Humble compatible release |
-| Python | 3.10 or higher |
-| CMake | 3.8 or higher |
+| Gazebo | Fortress (Ignition) |
+| Nav2 | Humble-compatible release |
+| SLAM Toolbox | Humble-compatible release |
+| Python | 3.10+ |
+| CMake | 3.8+ |
 
 ### ROS 2 Package Dependencies
 
-Install the required ROS 2 packages before building the workspace:
+Install all required packages before building the workspace:
 
 ```bash
 sudo apt install ros-humble-navigation2 \
                  ros-humble-nav2-bringup \
                  ros-humble-slam-toolbox \
                  ros-humble-ros-gz-bridge \
+                 ros-humble-ros-gz-sim \
                  ros-humble-xacro \
                  ros-humble-robot-state-publisher \
                  ros-humble-joint-state-publisher
@@ -45,91 +48,102 @@ sudo apt install ros-humble-navigation2 \
 
 ---
 
-## Package Structure
+## Repository Structure
 
 ```
 puzzlebot_ws/
 └── src/
     └── puzzlebot_ros2/
-        ├── puzzlebot_description/      # Robot URDF/Xacro model
-        ├── puzzlebot_gazebo/           # Gazebo simulation environment
-        └── puzzlebot_navigation2/      # Nav2 and SLAM configuration
+        ├── puzzlebot_description/      # Robot URDF/Xacro model and meshes
+        ├── puzzlebot_gazebo/           # Gazebo simulation environment and bridge
+        └── puzzlebot_navigation2/      # Nav2 stack, SLAM config, maps, and RViz profiles
 ```
 
 ### `puzzlebot_description`
 
-Contains the full robot description in URDF/Xacro format, including chassis geometry, wheel joints, sensor definitions, and differential drive control configuration.
+Contains the complete robot description in modular URDF/Xacro format. Defines chassis geometry, drive and caster wheel joints, the RPLidar 2D sensor, and the Gazebo differential drive controller plugin.
 
 ```
 puzzlebot_description/
 ├── CMakeLists.txt
 ├── package.xml
 ├── launch/
-│   └── puzzlebot_description.launch.xml   # Launches robot_state_publisher
+│   └── puzzlebot_description.launch.xml   # Publishes robot_state_publisher
 ├── meshes/
-│   ├── base/       # Chassis STL mesh (Jetson Lidar Edition)
-│   ├── sensors/    # Sensor STL meshes
-│   ├── wheels/     # Drive wheel and caster wheel meshes
-│   └── misc/
+│   ├── base/       # Chassis STL (Jetson Lidar Edition)
+│   ├── sensors/    # RPLidar STL
+│   └── wheels/     # Drive wheel and caster wheel STLs
 ├── rviz/
-│   └── puzzlebot_description.rviz         # Base RViz visualization config
+│   └── puzzlebot_description.rviz
 └── urdf/
-    ├── puzzlebot.urdf.xacro               # Root robot description file
-    ├── base.xacro                         # Chassis and main body
+    ├── puzzlebot_base.urdf.xacro          # Root description file
+    ├── base.xacro                         # Chassis and footprint
     ├── wheels.xacro                       # Drive and caster wheels
     ├── joints.xacro                       # Joint definitions
-    ├── sensors.xacro                      # LiDAR and sensor plugins
-    ├── sensors_properties.xacro           # LíDAR macros
-    ├── macros.xacro                       # Puzzlebot macros
-    └── control.xacro                      # Differential drive controller
+    ├── sensors.xacro                      # LiDAR link and Gazebo plugin
+    ├── sensor_properties.xacro            # LiDAR macro parameters
+    ├── macros.xacro                       # Shared geometry macros
+    └── puzzlebot_control.xacro            # Differential drive controller
 ```
 
 ### `puzzlebot_gazebo`
 
-Provides the simulation environment configuration, including the maze world definition and the ROS–Gazebo topic bridge required for sensor and actuator communication.
+Provides the Gazebo Fortress simulation environment. Includes the maze world SDF, the `ros_gz_bridge` configuration for bidirectional topic bridging between ROS 2 and Gazebo, and the top-level launch file that spawns the robot at position `(x=0.0, y=1.55)` with heading `yaw=-1.57 rad`.
 
 ```
 puzzlebot_gazebo/
 ├── CMakeLists.txt
 ├── package.xml
 ├── config/
-│   └── gazebo_bridge.yaml             # ROS–Gazebo topic bridge configuration
+│   └── gazebo_bridge.yaml        # Topic bridge: /clock, /cmd_vel, /odom, /tf, /scan, /joint_states
 ├── launch/
-│   └── puzzlebot_gazebo.launch.xml    # Launches Gazebo, spawns robot, starts bridge
+│   └── puzzlebot_gazebo.launch.xml
 └── worlds/
-    └── maze_world.world               # Maze environment for navigation testing
+    └── maze_world.world
 ```
+
+**Bridged topics:**
+
+| ROS 2 Topic | Direction | Message Type |
+|---|---|---|
+| `/clock` | GZ → ROS | `rosgraph_msgs/msg/Clock` |
+| `/cmd_vel` | ROS → GZ | `geometry_msgs/msg/Twist` |
+| `/odom` | GZ → ROS | `nav_msgs/msg/Odometry` |
+| `/tf` | GZ → ROS | `tf2_msgs/msg/TFMessage` |
+| `/joint_states` | GZ → ROS | `sensor_msgs/msg/JointState` |
+| `/scan` | GZ → ROS | `sensor_msgs/msg/LaserScan` |
 
 ### `puzzlebot_navigation2`
 
-Core navigation package. Contains the main launch files for both operation modes, Nav2 and SLAM Toolbox parameter files, pre-built maps, and RViz configuration profiles.
+Core navigation package. Contains the primary launch files for both operation modes, the tuned Nav2 and SLAM Toolbox parameter files, a pre-built maze occupancy grid, and RViz configuration profiles for each mode.
 
 ```
 puzzlebot_navigation2/
 ├── CMakeLists.txt
 ├── package.xml
 ├── config/
-│   ├── nav2_params.yaml               # Nav2 stack parameters
-│   └── slam_toolbox.yaml              # SLAM Toolbox parameters
+│   ├── nav2_params.yaml          # Full Nav2 stack parameters (AMCL, planner, controller, costmaps)
+│   └── slam_toolbox.yaml         # SLAM Toolbox online async mapping parameters
 ├── launch/
-│   ├── nav2.launch.xml                # Primary launch file — Navigation mode
-│   ├── nav2_core.launch.xml           # Internal Nav2 node launcher
-│   ├── slam.launch.xml                # Primary launch file — SLAM mode
-│   └── slam_core.launch.xml           # Internal SLAM Toolbox node launcher
+│   ├── nav2.launch.xml           # Entry point — Navigation mode
+│   ├── nav2_core.launch.xml      # Internal Nav2 node bringup
+│   ├── slam.launch.xml           # Entry point — SLAM mode
+│   └── slam_core.launch.xml      # Internal SLAM Toolbox bringup
 ├── maps/
-│   ├── map_maze.pgm                   # Occupancy grid image of the maze
-│   └── map_maze.yaml                  # Map metadata file
+│   ├── map_maze.pgm              # Occupancy grid (0.05 m/px resolution)
+│   └── map_maze.yaml             # Map metadata (origin, thresholds, resolution)
 └── rviz/
-    ├── nav2.rviz                      # RViz configuration for navigation mode
-    └── slam.rviz                      # RViz configuration for SLAM mode
+    ├── nav2.rviz
+    └── slam.rviz
 ```
 
 ---
 
 ## Installation and Build
 
+> **Prerequisite:** A ROS 2 Humble workspace at `~/puzzlebot_ws` is assumed to already exist.
+
 ### 1. Clone the Repository
-It is understood that the user already counts with a worksapce, this repo should be clone as shown below:
 
 ```bash
 cd ~/puzzlebot_ws/src
@@ -155,83 +169,131 @@ colcon build
 source install/setup.bash
 ```
 
-> **Note:** It is recommended to add `source ~/puzzlebot_ws/install/setup.bash` to your `~/.bashrc` file to avoid sourcing the workspace manually on every new terminal session.
+> **Tip:** Add `source ~/puzzlebot_ws/install/setup.bash` to `~/.bashrc` to avoid re-sourcing on every new terminal session.
 
 ---
 
 ## Launching the Project
 
-### Mode 1 — Autonomous Navigation with Nav2
+> **Important:** Navigation mode and SLAM mode are **mutually exclusive**. Do not run both launch files simultaneously.
 
-This mode launches the Gazebo simulation with the robot in the maze environment and starts the complete Nav2 navigation stack using the pre-built map (`map_maze.yaml`). Navigation goals can be sent directly from RViz.
+---
+
+### Mode 1 — Autonomous Navigation (Nav2)
+
+Launches the Gazebo simulation and the complete Nav2 stack using the pre-built maze map (`map_maze.yaml`). Localization is performed by AMCL with a tuned differential motion model. Path planning uses `NavfnPlanner` (Dijkstra/A\*) and trajectory tracking uses `RegulatedPurePursuitController`.
+
+The robot spawns at `(x=0.0, y=1.55, yaw=-1.57 rad)`, which matches the initial pose configured in `nav2_params.yaml`.
 
 ```bash
 ros2 launch puzzlebot_navigation2 nav2.launch.xml
 ```
 
-**Available arguments:**
+**Launch arguments:**
 
-| Argument | Default Value | Description |
-|----------|--------------|-------------|
-| `use_sim_time` | `true` | Use simulation time from Gazebo |
-| `headless` | `false` | Run Gazebo without graphical interface |
-| `map_path` | `maps/map_maze.yaml` | Path to the map file |
-| `nav2_params_file` | `config/nav2_params.yaml` | Path to the Nav2 parameters file |
+| Argument | Default | Description |
+|---|---|---|
+| `use_sim_time` | `true` | Sync to Gazebo simulation clock |
+| `headless` | `false` | Suppress Gazebo GUI (server-only mode) |
+| `map_path` | `maps/map_maze.yaml` | Path to the occupancy grid map |
+| `nav2_params_file` | `config/nav2_params.yaml` | Path to Nav2 parameter file |
 
-**Example with custom arguments:**
+**Example — headless run:**
 
 ```bash
 ros2 launch puzzlebot_navigation2 nav2.launch.xml headless:=true
 ```
 
-Once the system is running, use the **"2D Goal Pose"** tool in RViz to send navigation goals to the robot.
+Once all nodes are active, use the **2D Goal Pose** tool in RViz to publish a `geometry_msgs/PoseStamped` navigation goal.
 
 ---
 
-### Mode 2 — Online Async Mapping with SLAM Toolbox
+### Mode 2 — Online Async Mapping (SLAM Toolbox)
 
-This mode launches the Gazebo simulation alongside SLAM Toolbox in online mapping mode. The robot can be teleoperated to explore the environment and build a map in real time.
+Launches the Gazebo simulation alongside SLAM Toolbox in `mapping` mode using the Ceres solver (`SPARSE_NORMAL_CHOLESKY` + `LEVENBERG_MARQUARDT`). The robot can be teleoperated to explore the environment and build a map in real time. Loop closure is enabled with a search distance of 3.0 m.
 
 ```bash
 ros2 launch puzzlebot_navigation2 slam.launch.xml
 ```
 
-**Available arguments:**
+**Launch arguments:**
 
-| Argument | Default Value | Description |
-|----------|--------------|-------------|
-| `use_sim_time` | `true` | Use simulation time from Gazebo |
-| `headless` | `false` | Run Gazebo without graphical interface |
+| Argument | Default | Description |
+|---|---|---|
+| `use_sim_time` | `true` | Sync to Gazebo simulation clock |
+| `headless` | `false` | Suppress Gazebo GUI (server-only mode) |
 
-**Example with custom arguments:**
+**Example — headless run:**
 
 ```bash
 ros2 launch puzzlebot_navigation2 slam.launch.xml headless:=true
 ```
 
-To save the generated map, execute the following command in a separate terminal:
+**Saving the generated map:**
+
+Once the environment has been fully explored, run the following in a separate terminal to serialize the occupancy grid:
 
 ```bash
 ros2 run nav2_map_server map_saver_cli -f ~/my_map
 ```
 
-This will produce a `my_map.pgm` and `my_map.yaml` pair that can later be used in navigation mode.
+This produces `my_map.pgm` and `my_map.yaml`, which can be passed to `nav2.launch.xml` via the `map_path` argument.
 
 ---
 
 ## Robot Description
 
-The **PuzzleBot Jetson Lidar Edition** is a differential-drive mobile robot with the following characteristics:
+The **PuzzleBot Jetson Lidar Edition** is a compact differential-drive mobile robot designed for indoor autonomous navigation research.
 
-- **Drive system:** Two-wheeled differential drive with a passive caster wheel
-- **Primary sensor:** 2D LiDAR for obstacle detection, navigation, and SLAM
-- **Onboard computer:** NVIDIA Jetson (physical platform)
-- **Simulation:** Full Gazebo model with ROS 2 topic bridge for sensor and actuator data
+| Property | Value |
+|---|---|
+| Drive system | Two-wheeled differential drive + passive caster |
+| Primary sensor | 2D RPLidar (scan topic: `/scan`) |
+| Controller | Gazebo differential drive plugin |
+| Onboard computer | NVIDIA Jetson (physical platform) |
+| Simulation | Gazebo Fortress with `ros_gz_bridge` |
+| Robot radius | 0.15 m (costmap footprint) |
+| Max velocity | 0.10 m/s linear · 0.8 rad/s angular |
 
 ---
 
-## Additional Notes
+## Configuration Reference
 
-- The `gazebo_bridge.yaml` file defines the topic mappings between Gazebo and ROS 2. If new sensors are added to the URDF, this file must be updated accordingly.
-- The Nav2 parameters in `nav2_params.yaml` have been tuned for the included maze environment. Adjustments may be required for different maps or robot configurations.
-- Navigation mode and SLAM mode are mutually exclusive. Both launch files must not be executed simultaneously.
+### Nav2 Key Parameters (`nav2_params.yaml`)
+
+| Component | Plugin / Setting |
+|---|---|
+| Localization | `nav2_amcl::DifferentialMotionModel` · 200–800 particles |
+| Planner | `nav2_navfn_planner/NavfnPlanner` |
+| Controller | `RegulatedPurePursuitController` |
+| Local costmap inflation | radius 0.10 m · scaling 3.5 |
+| Global costmap inflation | radius 0.12 m · scaling 3.0 |
+| LiDAR range | 0.15 m – 3.5 m |
+
+### SLAM Toolbox Key Parameters (`slam_toolbox.yaml`)
+
+| Setting | Value |
+|---|---|
+| Solver | `CeresSolver` — `SPARSE_NORMAL_CHOLESKY` |
+| Trust strategy | `LEVENBERG_MARQUARDT` |
+| Map resolution | 0.05 m/px |
+| Map update interval | 5.0 s |
+| Loop closure search distance | 3.0 m |
+| Min travel before new scan | 0.5 m / 0.5 rad |
+
+### Pre-built Map (`map_maze.yaml`)
+
+| Property | Value |
+|---|---|
+| Resolution | 0.05 m/px |
+| Origin | `[-2.0, -1.82, 0.0]` |
+| Occupied threshold | 0.65 |
+| Free threshold | 0.25 |
+
+---
+
+## Notes
+
+- If new sensors are added to the URDF, the corresponding bridge entries must be added to `gazebo_bridge.yaml`.
+- The Nav2 parameters in `nav2_params.yaml` have been tuned specifically for `maze_world.world`. Different maps or environments may require adjusting costmap inflation radii, planner tolerances, and AMCL particle counts.
+- The `headless:=true` argument passes the `-s` flag to `gz_sim`, launching only the Gazebo server without a GUI — useful for CI or resource-constrained machines.
