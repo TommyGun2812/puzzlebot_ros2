@@ -152,6 +152,8 @@ controller_server:
 local_costmap:
   local_costmap:
     ros__parameters:
+      use_sim_time: true
+      transform_tolerance: 0.5
       update_frequency: 5.0
       publish_frequency: 2.0
       global_frame: odom
@@ -164,8 +166,8 @@ local_costmap:
       plugins: ["obstacle_layer", "voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.5
-        cost_scaling_factor: 5.0
+        inflation_radius: 0.10
+        cost_scaling_factor: 3.5
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: true
@@ -203,6 +205,7 @@ local_costmap:
 global_costmap:
   global_costmap:
     ros__parameters:
+      use_sim_time: true
       update_frequency: 1.0
       publish_frequency: 1.0
       global_frame: map
@@ -252,8 +255,8 @@ global_costmap:
         transform_tolerance: 0.1
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.5
-        cost_scaling_factor: 5.0
+        inflation_radius: 0.12
+        cost_scaling_factor: 3.0
       always_send_full_costmap: true
 
 map_server:
