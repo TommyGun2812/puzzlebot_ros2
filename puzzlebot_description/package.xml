@@ -3,9 +3,18 @@
 <package format="3">
   <name>puzzlebot_description</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="perezveratomas08@gmail.com">tom</maintainer>
-  <license>TODO: License declaration</license>
+
+  <description>
+    ROS 2 description package for the Puzzlebot Jetson Lidar Edition. Contains the URDF/Xacro
+    robot model (base, wheels, caster, and RPLidar sensor), 3D mesh assets, an RViz2
+    configuration, and a launch file for visualizing the robot in RViz2 and Gazebo simulations.
+  </description>
+
+  <maintainer email="ulises.carrizalez@outlook.com">Ulises Carrizalez Lerín</maintainer>
+  <maintainer email="hela_molina@gmail.com">Laura Helena Molina Jimenez</maintainer>
+  <maintainer email="zoe.rebolledo@gmail.com">Karla Zoé Rebolledo Argueta</maintainer>
+
+  <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

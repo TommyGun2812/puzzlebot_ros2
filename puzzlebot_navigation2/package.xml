@@ -3,9 +3,17 @@
 <package format="3">
   <name>puzzlebot_navigation2</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="perezveratomas08@gmail.com">tom</maintainer>
-  <license>TODO: License declaration</license>
+  <description>
+    ROS 2 navigation and mapping package for the Puzzlebot. Contains Nav2 and SLAM Toolbox
+    configurations, a pre-built maze map, RViz2 setups for both navigation and SLAM, and
+    launch files for running autonomous navigation and online/offline SLAM workflows.
+  </description>
+
+  <maintainer email="ulises.carrizalez@outlook.com">Ulises Carrizalez Lerín</maintainer>
+  <maintainer email="hela_molina@gmail.com">Laura Helena Molina Jimenez</maintainer>
+  <maintainer email="zoe.rebolledo@gmail.com">Karla Zoé Rebolledo Argueta</maintainer>
+
+  <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

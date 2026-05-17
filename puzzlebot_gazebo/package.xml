@@ -3,9 +3,18 @@
 <package format="3">
   <name>puzzlebot_gazebo</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="perezveratomas08@gmail.com">tom</maintainer>
-  <license>TODO: License declaration</license>
+
+  <description>
+    ROS 2 Gazebo simulation package for the Puzzlebot. Contains a custom maze world,
+    a ROS-Gazebo topic bridge configuration, and a launch file to spawn and simulate
+    the Puzzlebot in a Gazebo environment.
+  </description>
+
+  <maintainer email="ulises.carrizalez@outlook.com">Ulises Carrizalez Lerín</maintainer>
+  <maintainer email="hela_molina@gmail.com">Laura Helena Molina Jimenez</maintainer>
+  <maintainer email="zoe.rebolledo@gmail.com">Karla Zoé Rebolledo Argueta</maintainer>
+
+  <license>MIT</license>>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
